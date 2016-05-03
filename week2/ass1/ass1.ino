@@ -11,9 +11,12 @@ const byte b1[] = {B11111100, // 0
                    B11110110  // 9
 };
 
-int uni, ten, i, j, t, del = 10;
+bool inc = true;
+int uni, ten, i, j;
+const int del = 5;
+unsigned long t1, t2, t3, t4;
 
-void escreve(byte t){
+void write7seg(byte t){
   for(i = 0; i < 8; i++){
     digitalWrite(leds[i], bitRead(t,7-i));
   }
@@ -25,9 +28,12 @@ void setup()
     pinMode(leds[j], OUTPUT);
   pinMode(2, OUTPUT);
   pinMode(3, OUTPUT);
-  uni = 1;
+  uni = 0;
   ten = 0;
-  t = 0;
+  t1 = millis();
+  t2 = millis();
+  t3 = millis();
+  t4 = millis();
 }
 
 void loop()
@@ -35,24 +41,40 @@ void loop()
   
   digitalWrite(2, HIGH);
   digitalWrite(3, LOW);
-  escreve(b1[uni]);
+  write7seg(b1[uni]);
   delay(del);
   digitalWrite(2, LOW);
   digitalWrite(3, HIGH);
-  escreve(b1[ten]);
+  write7seg(b1[ten]);
   delay(del);
   
-  t++;
-  if(t >= 10)
+  t2 = millis();
+  if(t2 - t1 > 500)
   {
-      t = 0;
+    t1 = millis();
+    
+    if(inc){
       uni++;
       if(uni == 10){
         uni = 0;
         ten++;
+        
         if (ten == 10)
           ten = 0;
       }
+    } else {
+      uni--;
+      if(uni == -1){
+        uni = 9;
+        ten--;
+        
+        if (ten == -1)
+          ten = 9;
+      }
+    }
   }
 
+  if(!digitalRead(4))
+    while(!digitalRead(4))
+      inc = !inc;
 }
