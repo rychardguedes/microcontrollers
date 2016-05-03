@@ -33,6 +33,6 @@
 *.su
 
 # Others
-*.SDF
-*.hex
-*.DBK
+*.sdf
+*.dbk
+*.pwi

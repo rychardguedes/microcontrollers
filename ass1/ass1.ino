@@ -14,7 +14,7 @@ const byte b1[] = {B11111100, // 0
 bool inc = true;
 int uni, ten, i, j;
 const int del = 5;
-unsigned long t1, t2, t3, t4;
+unsigned long t1, t2;
 
 void write7seg(byte t){
   for(i = 0; i < 8; i++){
@@ -32,8 +32,6 @@ void setup()
   ten = 0;
   t1 = millis();
   t2 = millis();
-  t3 = millis();
-  t4 = millis();
 }
 
 void loop()
@@ -49,7 +47,7 @@ void loop()
   delay(del);
   
   t2 = millis();
-  if(t2 - t1 > 500)
+  if(t2 - t1 > 1000)
   {
     t1 = millis();
     
@@ -74,7 +72,8 @@ void loop()
     }
   }
 
-  if(!digitalRead(4))
-    while(!digitalRead(4))
-      inc = !inc;
+  if(!digitalRead(4)){
+    while(!digitalRead(4));
+    inc = !inc;
+  }
 }
