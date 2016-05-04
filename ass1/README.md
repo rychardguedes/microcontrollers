@@ -9,4 +9,4 @@ There are two `int` variables (`uni` and `ten`), which will control the number t
 ### Imporant Notes
 
 - `millis()` should be used instead of `delay()` to avoid pauses during the execution of the program. However, I still use a delay of 5 milliseconds for multiplexing the numbers. As this delay is so short, it won't affect the result.
-- A power terminal is used in transistors' collector due to problems ins the simulation without it.
+- A power terminal is used in transistors' collector due to problems on simulation without it.
