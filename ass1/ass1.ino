@@ -11,7 +11,7 @@ const byte b1[] = {B11111100, // 0
                    B11110110  // 9
 };
 
-bool inc = true;
+bool inc, sub;
 int uni, ten, i, j;
 const int del = 5;
 unsigned long t1, t2;
@@ -32,6 +32,8 @@ void setup()
   ten = 0;
   t1 = millis();
   t2 = millis();
+  sub = false;
+  inc = true;
 }
 
 void loop()
@@ -73,7 +75,10 @@ void loop()
   }
 
   if(!digitalRead(4)){
-    while(!digitalRead(4));
+    sub = true;
+  }
+  if(digitalRead(4) && sub){
+    sub = false;
     inc = !inc;
   }
 }
