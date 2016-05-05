@@ -13,8 +13,8 @@ const byte b1[] = {B11111100, // 0
 
 bool inc, sub;
 int uni, ten, i, j;
-const int del = 5;
-unsigned long t1, t2;
+const int del = 5, up = 14, down = 15, m1 = 3, m2 = 4;
+unsigned long t1, t2, t3, t4, t5, t6;
 
 void write7seg(byte t){
   for(i = 0; i < 8; i++){
@@ -26,27 +26,42 @@ void setup()
 {
   for (int j = 0; j < 8; j++)
     pinMode(leds[j], OUTPUT);
-  pinMode(2, OUTPUT);
-  pinMode(3, OUTPUT);
+  pinMode(m1, OUTPUT);
+  pinMode(m2, OUTPUT);
+  pinMode(up, INPUT);
+  pinMode(down, INPUT);
   uni = 0;
   ten = 0;
   t1 = millis();
   t2 = millis();
+  t3 = millis();
+  t4 = millis();
+  t5 = millis();
+  t6 = millis();
   sub = false;
   inc = true;
 }
 
 void loop()
 {
-  
-  digitalWrite(2, HIGH);
-  digitalWrite(3, LOW);
-  write7seg(b1[uni]);
-  delay(del);
-  digitalWrite(2, LOW);
-  digitalWrite(3, HIGH);
-  write7seg(b1[ten]);
-  delay(del);
+
+  t4 = millis();
+  if(t4 - t3 > 5)
+  {
+    t3 = millis();
+    digitalWrite(m1, LOW);
+    digitalWrite(m2, HIGH);
+    write7seg(b1[ten]);
+  }
+
+  t6 = millis();
+  if(t6 - t5 > 5)
+  {
+    t5 = millis();
+    digitalWrite(m1, HIGH);
+    digitalWrite(m2, LOW);
+    write7seg(b1[uni]);
+  }
   
   t2 = millis();
   if(t2 - t1 > 1000)
@@ -74,11 +89,19 @@ void loop()
     }
   }
 
-  if(!digitalRead(4)){
+  if(!digitalRead(up)){
     sub = true;
   }
-  if(digitalRead(4) && sub){
+  if(digitalRead(up) && sub){
     sub = false;
-    inc = !inc;
+    inc = true;
+  }
+  
+  if(!digitalRead(down)){
+    sub = true;
+  }
+  if(digitalRead(down) && sub){
+    sub = false;
+    inc = false;
   }
 }
