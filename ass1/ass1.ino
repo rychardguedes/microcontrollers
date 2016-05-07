@@ -11,10 +11,10 @@ const byte b1[] = {B11111100, // 0
                    B11110110  // 9
 };
 
-bool inc, sub;
+bool inc, sub1, sub2, mplx;
 int uni, ten, i, j;
 const int del = 5, up = 14, down = 15, m1 = 3, m2 = 4;
-unsigned long t1, t2, t3, t4, t5, t6;
+unsigned long t1, t2, t3, t4;
 
 void write7seg(byte t){
   for(i = 0; i < 8; i++){
@@ -36,10 +36,13 @@ void setup()
   t2 = millis();
   t3 = millis();
   t4 = millis();
-  t5 = millis();
-  t6 = millis();
-  sub = false;
+  sub1 = false;
+  sub2 = false;
   inc = true;
+  mplx = true;
+  Serial.begin(9600);
+  Serial.println("IFPB - Campus Joao Pessoa - Contador (incremento/decremento) 0 - 99");
+  Serial.println("Aluno: Rychard Guedes - 20122610037");
 }
 
 void loop()
@@ -49,18 +52,17 @@ void loop()
   if(t4 - t3 > 5)
   {
     t3 = millis();
-    digitalWrite(m1, LOW);
-    digitalWrite(m2, HIGH);
-    write7seg(b1[ten]);
-  }
-
-  t6 = millis();
-  if(t6 - t5 > 5)
-  {
-    t5 = millis();
-    digitalWrite(m1, HIGH);
-    digitalWrite(m2, LOW);
-    write7seg(b1[uni]);
+    if(mplx){
+      digitalWrite(m1, LOW);
+      digitalWrite(m2, HIGH);
+      write7seg(b1[ten]);
+      mplx = false;
+    } else {
+      digitalWrite(m1, HIGH);
+      digitalWrite(m2, LOW);
+      write7seg(b1[uni]);
+      mplx = true;
+    }
   }
   
   t2 = millis();
@@ -90,18 +92,21 @@ void loop()
   }
 
   if(!digitalRead(up)){
-    sub = true;
+    sub1 = true;
   }
-  if(digitalRead(up) && sub){
-    sub = false;
+  if(digitalRead(up) && sub1){
+    sub1 = false;
     inc = true;
+    Serial.println("Botao de incrementar");
+  }
+
+  if(!digitalRead(down)){
+    sub2 = true;
+  }
+  if(digitalRead(down) && sub2){
+    sub2 = false;
+    inc = false;
+    Serial.println("Botao de decrementar");
   }
   
-  if(!digitalRead(down)){
-    sub = true;
-  }
-  if(digitalRead(down) && sub){
-    sub = false;
-    inc = false;
-  }
 }
