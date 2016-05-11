@@ -1,32 +1,26 @@
-//We always have to include the library
+// Rychard Guedes - 20122610037
+
 #include "LedControl.h"
 
-/*
- Now we need a LedControl to work with.
- ***** These pin numbers will probably not work with your hardware *****
- pin 12 is connected to the DataIn 
- pin 11 is connected to the CLK 
- pin 10 is connected to LOAD 
- We have only a single MAX72XX.
- */
 LedControl lc = LedControl(12,11,10,1);
 
-/* we always wait a bit between updates of the display */
 const int dec = 7, inc = 6;
 boolean sub1, sub2;
 int num_vec[5] = {0,0,0,0,0};
-unsigned long count;
+long count;
 
-void defineDisplay(unsigned long var){
-  num_vec[0] = var/10000;
-  num_vec[1] = (var%10000)/1000;
-  num_vec[2] = (num_vec[1]%1000)/100;
-  num_vec[3] = (num_vec[2]%100)/10;
-  num_vec[4] = num_vec[3]%10;
+void defineNumbers(){
+  num_vec[0] = count/10000;
+  num_vec[1] = (count%10000)/1000;
+  num_vec[2] = ((count%10000)%1000)/100;
+  num_vec[3] = (((count%10000)%1000)%100)/10;
+  num_vec[4] = ((((count%10000)%1000)%100)%10);
+}
 
+void showSerial(){
   Serial.println();
   Serial.print("Count: ");
-  Serial.println(var);
+  Serial.println(count);
   Serial.print("Numero digitado por completo: ");
   Serial.print(num_vec[0]);
   Serial.print(num_vec[1]);
@@ -35,6 +29,9 @@ void defineDisplay(unsigned long var){
   Serial.print(num_vec[4]);
   Serial.println();
   Serial.println();
+}
+
+void setDisplay(){
   lc.clearDisplay(0);
   lc.setChar(0,0,num_vec[0],false);
   lc.setChar(0,1,num_vec[1],false);
@@ -52,7 +49,8 @@ void setup() {
   lc.clearDisplay(0);       // and clear the display 
   count = 54500;
   sub1 = sub2 = false;
-  defineDisplay(count);
+  defineNumbers();
+  setDisplay();
 }
 
 
@@ -66,8 +64,10 @@ void loop() {
     count -= 155;
     if(count < 0)
       count = 0;
-    Serial.println("Incremento");
-    defineDisplay(count);
+    Serial.println("Decremento");
+    defineNumbers();
+    showSerial();
+    setDisplay();
   }
 
   if(!digitalRead(inc)){
@@ -78,8 +78,10 @@ void loop() {
     count += 205;
     if(count > 99999)
       count = 99999;
-    Serial.println("Decremento");
-    defineDisplay(count);
+    Serial.println("Incremento");
+    defineNumbers();
+    showSerial();
+    setDisplay();
   }
   
 }
