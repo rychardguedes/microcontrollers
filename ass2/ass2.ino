@@ -1,34 +1,42 @@
-//We always have to include the library
 #include "LedControl.h"
 
 LedControl lc = LedControl(12,11,10,1);
 
-/* we always wait a bit between updates of the display */
 char num_vec[5];
 int on_vec[5];
 int count, ch;
 String srl, str;
 
-
 void setup() {
   Serial.begin(9600);
-  Serial.println("Serial iniciada");
-  Serial.println("---------------");
-  lc.shutdown(0,false);     // Wake the lc up
-  lc.setIntensity(0,8);     // Set the brightness to a medium values 
-  lc.clearDisplay(0);       // and clear the display 
+  Serial.println("IFPB - Campus Joao Pessoa - Le da serial e escreve no display");
+  Serial.println("Aluno: Rychard Guedes - 20122610037");
+  Serial.println("-------------------------------------------------------------");
+  lc.shutdown(0,false);  
+  lc.setIntensity(0,8);
+  lc.clearDisplay(0);
   count = 0;
 }
-
 
 void loop() {
 
   if(Serial.available()){
     ch = Serial.read();
-    num_vec[count] = char(ch);
-    str = char(ch);
-    Serial.print(str);
-    count++;
+    
+    if(ch == 13){
+      int i;
+      count--;
+      for(i = 4; i > -1 and count > -1; i--, count--)
+        num_vec[i] = num_vec[count];
+      for(i; i > -1; i--)
+        num_vec[i] = '0';
+      count = 5;
+    } else {
+      num_vec[count] = char(ch);
+      str = char(ch);
+      Serial.print(str);
+      count++;
+    }
     if(count == 5){
       Serial.println();
       Serial.print("Numero digitado por completo: ");

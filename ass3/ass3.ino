@@ -5,8 +5,8 @@
 LedControl lc = LedControl(12,11,10,1);
 
 const int dec = 7, inc = 6;
-boolean sub1, sub2;
-int num_vec[5] = {0,0,0,0,0};
+boolean sub1, sub2, off;
+int num_vec[5] = {0,0,0,0,0}, on_vec[5] = {0,0,0,0,0};
 long count;
 
 void defineNumbers(){
@@ -15,39 +15,41 @@ void defineNumbers(){
   num_vec[2] = ((count%10000)%1000)/100;
   num_vec[3] = (((count%10000)%1000)%100)/10;
   num_vec[4] = ((((count%10000)%1000)%100)%10);
+
+  boolean off = true;
+  for(int i = 0; i < 4; i++){
+    if(num_vec[i] != 0){
+      off = false;
+    }
+    if(off){
+      on_vec[i] = 1; 
+    } else {
+      on_vec[i] = 0;
+    }
+  }
 }
 
 void showSerial(){
-  Serial.println();
-  Serial.print("Count: ");
+  Serial.print("Novo numero: ");
   Serial.println(count);
-  Serial.print("Numero digitado por completo: ");
-  Serial.print(num_vec[0]);
-  Serial.print(num_vec[1]);
-  Serial.print(num_vec[2]);
-  Serial.print(num_vec[3]);
-  Serial.print(num_vec[4]);
-  Serial.println();
   Serial.println();
 }
 
 void setDisplay(){
   lc.clearDisplay(0);
-  lc.setChar(0,0,num_vec[0],false);
-  lc.setChar(0,1,num_vec[1],false);
-  lc.setChar(0,2,num_vec[2],false);
-  lc.setChar(0,3,num_vec[3],false);
-  lc.setChar(0,4,num_vec[4],false);
+  for(int i = 0; i < 5; i++)
+    lc.setChar(on_vec[i],i,num_vec[i],false);
 }
 
 void setup() {
   Serial.begin(9600);
-  Serial.println("Serial iniciada");
-  Serial.println("---------------");
+  Serial.println("IFPB - Campus Joao Pessoa - Contador (incremento/decremento) 0 - 99999");
+  Serial.println("Aluno: Rychard Guedes - 20122610037");
+  Serial.println("----------------------------------------------------------------------");
   lc.shutdown(0,false);     // Wake the lc up
   lc.setIntensity(0,8);     // Set the brightness to a medium values 
   lc.clearDisplay(0);       // and clear the display 
-  count = 54500;
+  count = 500;
   sub1 = sub2 = false;
   defineNumbers();
   setDisplay();
