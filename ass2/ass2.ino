@@ -3,9 +3,23 @@
 LedControl lc = LedControl(12,11,10,1);
 
 char num_vec[5];
-int on_vec[5];
-int count, ch;
+int on_vec[5] = {0, 0, 0, 0, 0}, count, ch;
 String srl, str;
+
+void showSerial(){
+  Serial.println();
+  Serial.print("Numero digitado por completo: ");
+  for (int i = 0; i < 5; i++)
+    Serial.print(num_vec[i]);
+  Serial.println();
+  Serial.println();
+}
+
+void setDisplay(){
+  lc.clearDisplay(0);
+  for (int i = 0; i < 5; i++)
+    lc.setChar(on_vec[i],i,num_vec[i],false);
+}
 
 void setup() {
   Serial.begin(9600);
@@ -26,10 +40,8 @@ void loop() {
     if(ch == 13){
       int i;
       count--;
-      for(i = 4; i > -1 and count > -1; i--, count--)
-        num_vec[i] = num_vec[count];
-      for(i; i > -1; i--)
-        num_vec[i] = '0';
+      for(i = 4; i > -1 and count > -1; num_vec[i--] = num_vec[count--]);
+      for(i; i > -1; num_vec[i--] = '0');
       count = 5;
     } else {
       num_vec[count] = char(ch);
@@ -38,33 +50,17 @@ void loop() {
       count++;
     }
     if(count == 5){
-      Serial.println();
-      Serial.print("Numero digitado por completo: ");
-      Serial.print(num_vec[0]);
-      Serial.print(num_vec[1]);
-      Serial.print(num_vec[2]);
-      Serial.print(num_vec[3]);
-      Serial.print(num_vec[4]);
-      Serial.println();
-      Serial.println();
       boolean off = true;
       for(int i = 0; i < 4; i++){
-        if(num_vec[i] != '0'){
+        if(num_vec[i] != '0')
           off = false;
-        }
-        if(off){
+        if(off)
           on_vec[i] = 1; 
-        } else {
+        else
           on_vec[i] = 0;
-        }
       }
-      on_vec[4] = 0;
-      lc.clearDisplay(0);
-      lc.setChar(on_vec[0],0,num_vec[0],false);
-      lc.setChar(on_vec[1],1,num_vec[1],false);
-      lc.setChar(on_vec[2],2,num_vec[2],false);
-      lc.setChar(on_vec[3],3,num_vec[3],false);
-      lc.setChar(on_vec[4],4,num_vec[4],false);
+      showSerial();
+      setDisplay();
       count = 0;
     }
   }
