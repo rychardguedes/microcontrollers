@@ -38,32 +38,33 @@ void loop() {
 
   if(Serial.available()){
     ch = Serial.read();
-    
-    if(ch == 13){
-      int i;
-      count--;
-      for(i = 4; i > -1 and count > -1; num_vec[i--] = num_vec[count--]);
-      for(i; i > -1; num_vec[i--] = '0');
-      count = 5;
-    } else {
-      num_vec[count] = char(ch);
-      str = char(ch);
-      Serial.print(str);
-      count++;
-    }
-    if(count == 5){
-      boolean off = true;
-      for(int i = 0; i < 4; i++){
-        if(num_vec[i] != '0')
-          off = false;
-        if(off)
-          on_vec[i] = 1; 
-        else
-          on_vec[i] = 0;
+    if((ch >= '0' and ch <= '9') or ch == 13){ // Linha adicionada para aceitar apenas numeros
+      if(ch == 13){
+        int i;
+        count--;
+        for(i = 4; i > -1 and count > -1; num_vec[i--] = num_vec[count--]);
+        for(i; i > -1; num_vec[i--] = '0');
+        count = 5;
+      } else {
+        num_vec[count] = char(ch);
+        str = char(ch);
+        Serial.print(str);
+        count++;
       }
-      showSerial();
-      setDisplay();
-      count = 0;
+      if(count == 5){
+        boolean off = true;
+        for(int i = 0; i < 4; i++){
+          if(num_vec[i] != '0')
+            off = false;
+          if(off)
+            on_vec[i] = 1; 
+          else
+            on_vec[i] = 0;
+        }
+        showSerial();
+        setDisplay();
+        count = 0;
+      }
     }
   }
 }
