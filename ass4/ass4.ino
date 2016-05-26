@@ -1,6 +1,7 @@
-// x1 é o mais significativo
-const int data = 12, sclk = 13, ltch = 11, x1 = 14, x2 = 15, x3 = 16;
+// Rychard Guedes - 20122610037
+
 unsigned long t1, t2, t3, t4;
+boolean sub1, sub2, inc;
 int count, mplx;
 
 const byte bt[] = {B11111100, // 0
@@ -15,18 +16,6 @@ const byte bt[] = {B11111100, // 0
                    B11110110  // 9
 };
 
-const byte btp[] = {B11111101, // 0
-                    B01100001, // 1
-                    B11011011, // 2
-                    B11110011, // 3
-                    B01100111, // 4
-                    B10110111, // 5
-                    B10111111, // 6
-                    B11100001, // 7
-                    B11111111, // 8
-                    B11110111  // 9
-};
-
 void write7seg(byte b){
   for(int i = 0; i < 8; i++){
     digitalWrite(data, bitRead(b, i));
@@ -39,6 +28,11 @@ void write7seg(byte b){
 }
 
 void setup() {
+  Serial.begin(9600);
+  Serial.println("IFPB - Campus Joao Pessoa - Contador com serial-paralelo");
+  Serial.println("Aluno: Rychard Guedes - 20122610037");
+  Serial.println("-------------------------------------------------------------");
+  
   pinMode(x1, OUTPUT);
   pinMode(x2, OUTPUT);
   pinMode(x3, OUTPUT);
@@ -56,7 +50,8 @@ void setup() {
   t4 = millis();
 
   count = 0;
-
+  sub1 = sub2 = false;
+  inc = true;
   mplx = 0;
 }
 
@@ -70,31 +65,28 @@ void loop() {
       digitalWrite(x1, LOW);
       digitalWrite(x2, HIGH);
       digitalWrite(x3, LOW);
-      if(count < 999){
+      if(count < 999)
         write7seg(bt[count%10]);  
-      } else {
+      else
         write7seg(bt[(count/10)%10]); 
-      }
       ++mplx;
     } else if (mplx == 1) {
       digitalWrite(x1, HIGH);
       digitalWrite(x2, LOW);
       digitalWrite(x3, LOW);
-      if(count < 999){
+      if(count < 999)
         write7seg(bt[(count/10)%10]);
-      } else {
+      else
         write7seg(bt[(count/100)%10]);
-      }
       ++mplx;
     } else {
       digitalWrite(x1, LOW);
       digitalWrite(x2, LOW);
       digitalWrite(x3, HIGH);
-      if(count < 999){
+      if(count < 999)
         write7seg(bt[(count/100)]);
-      } else {
-        write7seg(btp[count/1000]);
-      }
+      else
+        write7seg(bt[count/1000]|1);
       mplx = 0;
     }
   }
@@ -102,11 +94,37 @@ void loop() {
   t4 = millis();
   if(t4 - t3 > 10){
     t3 = millis();
-    count++;
-    if(count == 9999)
-      count = 0;
+    if(inc){
+      count++;
+      if(count == 9999)
+        count = 0;  
+    } else {
+      count--;
+      if(count == -1)
+        count = 9999;
+    }
+    if(count%500 == 0){
+      Serial.println(count);
+    }
+    
   }
 
+  if(!digitalRead(up)){
+    sub1 = true;
+  }
+  if(digitalRead(up) && sub1){
+    sub1 = false;
+    inc = true;
+    Serial.println("Botao de incrementar");
+  }
 
+  if(!digitalRead(down)){
+    sub2 = true;
+  }
+  if(digitalRead(down) && sub2){
+    sub2 = false;
+    inc = false;
+    Serial.println("Botao de decrementar");
+  }
 
 }
