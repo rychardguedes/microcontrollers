@@ -1,5 +1,5 @@
 // x1 é o mais significativo
-const int data = 12, sclk = 13, ltch = 11, x1 = 14, x2 = 15, x3 = 16;
+const int data = 12, clk = 8, clr = 10, x1 = 14, x2 = 15, x3 = 16;
 unsigned long t1, t2, t3, t4;
 int count, mplx;
 
@@ -18,25 +18,23 @@ const byte bt[] = {B11111100, // 0
 void write7seg(byte b){
   for(int i = 0; i < 8; i++){
     digitalWrite(data, bitRead(b, i));
-    digitalWrite(sclk, LOW);
-    digitalWrite(sclk, HIGH);
+    digitalWrite(clk, LOW);
+    digitalWrite(clk, HIGH);
   }
-  digitalWrite(ltch, LOW);
-  digitalWrite(ltch, HIGH);
-  digitalWrite(ltch, LOW);
 }
 
 void setup() {
   pinMode(x1, OUTPUT);
   pinMode(x2, OUTPUT);
   pinMode(x3, OUTPUT);
-  pinMode(sclk, OUTPUT);
-  pinMode(ltch, OUTPUT);
+  pinMode(clr, OUTPUT);
+  pinMode(clk, OUTPUT);
   pinMode(data, OUTPUT);
 
   digitalWrite(x1, HIGH);
   digitalWrite(x2, LOW);
   digitalWrite(x3, LOW);
+  digitalWrite(clr, HIGH);
 
   t1 = millis();
   t2 = millis();
@@ -56,42 +54,31 @@ void loop() {
     t1 = millis();
     if(mplx == 0){
       digitalWrite(x1, LOW);
-      digitalWrite(x2, HIGH);
-      digitalWrite(x3, LOW);
-      if(count < 999){
-        write7seg(bt[count%10]);  
-      } else {
-        write7seg(bt[(count/10)%10]); 
-      }
+      digitalWrite(x2, LOW);
+      digitalWrite(x3, HIGH);
+      write7seg(bt[count%10]);
       ++mplx;
     } else if (mplx == 1) {
+      digitalWrite(x1, LOW);
+      digitalWrite(x2, HIGH);
+      digitalWrite(x3, LOW);
+      write7seg(bt[(count/10)%10]);
+      ++mplx;
+    } else {
       digitalWrite(x1, HIGH);
       digitalWrite(x2, LOW);
       digitalWrite(x3, LOW);
-      if(count < 999){
-        write7seg(bt[(count/10)%10]);
-      } else {
-        write7seg(bt[(count/100)%10]);
-      }
-      ++mplx;
-    } else {
-      digitalWrite(x1, LOW);
-      digitalWrite(x2, LOW);
-      digitalWrite(x3, HIGH);
-      if(count < 999){
-        write7seg(bt[(count/100)]);
-      } else {
-        write7seg(bt[count/1000]|1);
-      }
+      write7seg(bt[(count/100)]);
       mplx = 0;
+      
     }
   }
 
   t4 = millis();
-  if(t4 - t3 > 10){
+  if(t4 - t3 > 20){
     t3 = millis();
     count++;
-    if(count == 9999)
+    if(count == 1000)
       count = 0;
   }
 
