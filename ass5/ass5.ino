@@ -5,7 +5,7 @@ LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 const int ncol = 4, nlin = 4;                       // Quantidade de linhas e colunas da matriz de teclas
 const int col[] = {14, 15, 16, 17}, lin[] = {5, 4, 3, 2};   // Vetores de teclas
 
-boolean neg = true, flt = true, show_msg = true;
+boolean neg = true, flt = true, show_msg = true, fim = false;
 char tecla;
 int coef_n = 0, qtd_raizes;
 float num_f, coef[3] = {0, 0, 0}, x1, x2;
@@ -77,15 +77,22 @@ void setup() {
   lcd.print("EQUACAO 2 GRAU");
   delay(1000);
   lcd.clear();
+  lcd.print("INSIRA A:");
+  lcd.setCursor(0, 1);
+  lcd.blink();
 }
 
 void loop() {
   tecla = getKey();
 
-  
   if(tecla != 0){
     Serial.print(tecla);
-    
+
+    if(fim and tecla == 'D'){
+      setup();
+    }
+
+      
     if(tecla == '='){
       
       coef[coef_n] = num_s.toFloat();
@@ -96,25 +103,40 @@ void loop() {
       Serial.println(coef_n);
       num_s = "";
 
-      if(coef_n == 1)
-        Serial.print("Digite B: ");
-      else if (coef_n == 2)
-        Serial.print("Digite C: ");
+      if(coef_n == 1){
+        Serial.print("Insira B: ");
+        lcd.clear();
+        lcd.print("INSIRA B:");
+        lcd.setCursor(0, 1);
+      } else if (coef_n == 2){
+        Serial.print("Insira C: ");
+        lcd.clear();
+        lcd.print("INSIRA C:");
+        lcd.setCursor(0, 1);
+      }
+        
         
       flt = true;
     } else if (tecla == '.'){
       if(flt){
         num_s += tecla;
         flt = false;
+        lcd.print(".");
       }
     } else if (tecla == '-'){
-      if (num_s.equals(""))
+      if (num_s.equals("")){
         num_s += tecla;
+        lcd.print("-");
+      }
     } else if (tecla == 'D'){
       num_s = "";
       flt = true;
+      lcd.setCursor(0, 1);
+      lcd.print("                 ");
+      lcd.setCursor(0, 1);
     } else {
       num_s += tecla;
+      lcd.print(tecla);
     } 
   }
   
@@ -122,16 +144,24 @@ void loop() {
     coef_n = 0;
 
     qtd_raizes = bhaskara(coef[0], coef[1], coef[2]);
-
+    lcd.clear();
     if(qtd_raizes == 0){
       Serial.println("Não existem raizes reais");
+      lcd.print("NAO EXISTEM");
+      lcd.setCursor(0,1);
+      lcd.print("RAIZES REAIS");
     } else {
       Serial.println("Existem raizes reais: ");
       Serial.println(x1);
       Serial.println(x2);
+      lcd.print("X1 = ");
+      lcd.print(x1);
+      lcd.setCursor(0,1);
+      lcd.print("X2 = ");
+      lcd.print(x2);
     }
     Serial.println();
-    delay(200);
+    delay(1000);
     setup();
   }
   
