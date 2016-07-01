@@ -53,11 +53,11 @@ void setAllShutdown(LedControl *lc){
     lc->shutdown(index,false); 
 }
 
-char ler_tecla(int dig_pisca){
-  int tecla = leitura_analogica(dig_pisca);
+char ler_tecla(int sel_dig, int sel_max){
+  int tecla = leitura_analogica(sel_dig, sel_max);
   int i, leitura_mediana[10];
   for(i = 0; i < 10; i++){
-    tecla = leitura_analogica(dig_pisca);
+    tecla = leitura_analogica(sel_dig, sel_max);
     delay(2);
     leitura_mediana[i] = tecla;
   }
@@ -65,17 +65,19 @@ char ler_tecla(int dig_pisca){
   return decodifica((leitura_mediana[4] + leitura_mediana[5])/2);  
 }
 
-int leitura_analogica(int dig_pisca){
+int leitura_analogica(int sel_dig, int sel_max){
   int ler = 0;
-  boolean pisca = true;
+  boolean pisca_bool = true;
+  char pisca_char;
   unsigned long t1 = millis(), t2 = millis();
   while(1){ 
     
     t2 = millis();
     if(t2 - t1 > 500){
       t1 = millis();
-      pisca ? lc1.setChar(0, dig_pisca, '_', false) : lc1.setChar(0, dig_pisca, ' ', false);
-      pisca = !pisca;
+      pisca_char = pisca_bool ? '_' : ' ';
+      sel_max == 1 ? lc1.setChar(0, sel_dig, pisca_char, false) : lc2.setChar(0, sel_dig, pisca_char, false);
+      pisca_bool = !pisca_bool;
     }
     ler = analogRead(A0);           // ler tensao analogica (ADC => 0 ... 1023)
     if (ler){                        // tensao > 0
@@ -118,14 +120,14 @@ void loop() {
   lc2.setChar(0, 1, '=', false);
   
   for(i = 2; i < 8; i++){
-    digito = ler_tecla(i);
+    digito = ler_tecla(i, 1);
     numero += digito;
     lc1.setChar(0, i, digito, false);
   }
   
 
   for(i = 2; i < 8; i++){
-    digito = ler_tecla(i);
+    digito = ler_tecla(i, 2);
     numero += digito;
     lc2.setChar(0, i, digito, false);
   }

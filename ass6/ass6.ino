@@ -1,9 +1,13 @@
+//Rychard Guedes - 20122610037
+
 #include <LiquidCrystal.h>
 
 LiquidCrystal lcd(13, 12, 11, 10, 9, 8);
 
 const int v2 = A1;
-bool st = 0;
+bool st, continua;
+int ent;                                        // ent = 0, peso / ent = 1, altura
+char tecla_continua;
 float peso, altura, imc;                        
 int tecla_mediana[10] = {0, 0, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -20,6 +24,18 @@ const char tecla[4][4] = {
   {'C','0','=','+'}
 };
 
+void displayPesoAltura(int num){
+  lcd.setCursor(0,1);
+  lcd.print("                ");
+  lcd.setCursor(0,1);
+  if (num == 0){
+    lcd.print("PESO: ");
+    Serial.print("Peso: ");
+  } else {
+    lcd.print("ALTURA: ");
+    Serial.print("Altura: ");
+  }
+}
 
 void setup() {
   Serial.begin(9600);
@@ -28,33 +44,62 @@ void setup() {
   Serial.println("===========================================================================");
   lcd.begin(16,2);
   lcd.print("CALCULO DE IMC");
+  ent = 0;
+  continua = true;
 }
       
 void loop() {
-  lcd.setCursor(0,1);
-  lcd.print("                ");
-  lcd.setCursor(0,1);
-  lcd.print("PESO: ");
-  Serial.print("Peso: ");
-  peso = ler_num();
+  if(continua){
+    displayPesoAltura(ent);
+    peso = ler_num();
+    Serial.println();
+    
+    ent++;
+    
+    displayPesoAltura(ent);
+    altura = ler_num();
+    Serial.println();
+   
+    imc = peso/((altura*altura)/10000);
   
-  lcd.setCursor(0,1);
-  lcd.print("                ");
-  lcd.setCursor(0,1);
-  lcd.print("ALTURA: ");
-  Serial.print("Altura: ");
-  altura = ler_num();
- 
-  imc = peso/((altura*altura)/10000);
-
-  lcd.setCursor(0,1);
-  lcd.print("                ");
-  lcd.setCursor(0,1);
-  lcd.print("IMC: ");
-  lcd.print(imc);
-  Serial.print("IMC: ");
-  Serial.println(imc);
-  delay(5000);
+    lcd.clear();
+    lcd.home();
+    if(imc < 17)
+      lcd.print("MT ABAIXO PESO");
+    else if (imc >= 17 and imc < 18.5)
+      lcd.print("ABAIXO DO PESO");
+    else if (imc >= 18.5 and imc < 25)
+      lcd.print("PESO NORMAL");
+    else if (imc >= 25 and imc < 30)
+      lcd.print("ACIMA DO PESO");
+    else if (imc >= 30 and imc < 35)
+      lcd.print("OBESIDADE I");
+    else if (imc >= 35 and imc < 40)
+      lcd.print("OBESIDADE II");
+    else if (imc >= 40)
+      lcd.print("OBESIDADE III");
+      
+    lcd.setCursor(0,1);
+    lcd.print("IMC: ");
+    lcd.print(imc);
+    Serial.print("IMC: ");
+    Serial.println(imc);
+    tecla_continua = ler_teclado();
+    lcd.clear();
+    lcd.print("APERTE ON/C PARA");
+    lcd.setCursor(0,1);
+    lcd.print("CONTINUAR");
+    delay(200);
+    tecla_continua = ler_teclado();
+    if(tecla_continua != 'C')
+      continua = false;
+    else 
+      setup();
+  } else {
+    lcd.clear();
+    lcd.noDisplay();
+  }
+  
 }
 
 char ler_teclado(){
@@ -73,8 +118,11 @@ char ler_teclado(){
   } 
   
   r = veja((tecla_mediana[4]+tecla_mediana[5])/2);
-  
-  return r;
+
+  if(r == 'w')
+    return ler_teclado();
+  else
+    return r;
 }
 
 char veja(int r1){
@@ -111,8 +159,9 @@ float ler_num(){
   char tecla = 0;
   bool flt = true;
   String num_s = "";
+  int count_flt = 0;
   
-  while(tecla != 'C' or num_s.equals("")){
+  while(tecla != 'C' or num_s.toFloat() <= 0){
     if (tecla == '.'){
       if(flt){
         Serial.print(tecla);
@@ -125,17 +174,18 @@ float ler_num(){
       flt = true;
       Serial.println("Numero deletado");
       Serial.println("Numero novo: ");
-      lcd.setCursor(0,1);
-      lcd.print("                 ");
-      lcd.setCursor(0,1);
-      lcd.print(tecla);
-    } else if (tecla == '+' or tecla == '=' or tecla == '-'){
+      displayPesoAltura(ent);
+    } else if (tecla == '+' or tecla == '=' or tecla == '-' or tecla == 'C'){
       
+    } else if (count_flt > 0){
+       
     } else if (tecla != 0){
       Serial.print(tecla);
       lcd.print(tecla);
       num_s += tecla;
       tecla = 0;
+      if (!flt)
+        count_flt++;
     }
     tecla = ler_teclado();
     delay(100);
