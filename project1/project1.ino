@@ -20,20 +20,6 @@ const char mapa_tecla[4][4] = {
   {'C','0','=','+'}
 };
 
-void setDisplay(){
-  lc1.clearDisplay(0);
-  lc1.setChar(0, 0, 'P', false);
-  lc1.setChar(0, 1, 'A', false);
-  lc1.setChar(0, 2, '_', false);
-  lc1.setChar(0, 3, '=', false);
-  lc1.setChar(0, 4, ' ', false);
-  lc1.setChar(0, 5, '1', false);
-  lc1.setChar(0, 6, '2', false);
-  lc1.setChar(0, 7, '3', false);
-  //for (int i = 0; i < 5; i++)
-  //  lc.setChar(0, i, num_vec[i], false);
-}
-
 void setDisplay2(){
   lc1.clearDisplay(0);
   lc1.setChar(0, 0, '0', false);
@@ -92,7 +78,7 @@ char decodifica(int analog){
     for(int j = 0; j < 4; j++)
       if((analog >= mapa_analog[i][j] - 5) && (analog <= mapa_analog[i][j] + 5))
         return mapa_tecla[i][j];
-  return 'p';
+  return 'q';
 }
 
 void setup() {
@@ -111,8 +97,10 @@ void setup() {
 }
 
 void loop() {
-  int i;
+  //120 d4y5 0f 4n41
+  int i, prev;
   char digito;
+  boolean ponto = false;
   String numero;
   lc1.setChar(0, 0, 'P', false);
   lc1.setChar(0, 1, '=', false);
@@ -121,8 +109,25 @@ void loop() {
   
   for(i = 2; i < 8; i++){
     digito = ler_tecla(i, 1);
-    numero += digito;
-    lc1.setChar(0, i, digito, false);
+    if(digito == 'C'){
+      lc1.setChar(0, i, ' ', false);  
+      break;
+    }
+    else if(digito == '.' and ponto){
+      i--;
+    } else if (digito == 'x' or digito == '-' or digito == '+' or digito == '='){
+      i--;
+    }
+    else if(digito == '.'){
+      prev = lc1.getDigit(0, i - 1);
+      lc1.setDigit(0, i - 1, prev, true);  
+      numero += digito;
+      ponto = true;
+      i--;
+    } else {
+      numero += digito;
+      lc1.setChar(0, i, digito, false);  
+    }
   }
   
 
